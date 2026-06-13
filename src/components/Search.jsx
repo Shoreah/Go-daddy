@@ -21,10 +21,10 @@ export default function DomainSearchBar({ onSearch }) {
   };
 
   return (
-    <div className="my-10 rounded-lg max-w-6xl w-auto mx-auto h-25 bg-gray-200 flex justify-evenly items-center">
+    <div className="my-5 rounded-xl max-w-[1250px] w-auto mx-auto h-25 bg-gray-100 flex justify-evenly items-center">
       <div
-        className={`flex items-center bg-white rounded-xl w-full max-w-4xl h-20 pr-1.5 pl-2 py-1.5 transition-shadow duration-200 ${
-          focused ? "ring-2 ring-[#5aace8]" : "ring-[1.5px] ring-black/15"
+        className={`flex items-center shadow-xl bg-white rounded-xl w-full max-w-[1000px] h-20 pr-1.5 pl-2 py-1.5 transition-shadow duration-200 ${
+          focused ? "ring-2 ring-[#5aace8]" : "ring-0"
         }`}
       >
         {/* Sliding left icon */}
@@ -63,14 +63,14 @@ export default function DomainSearchBar({ onSearch }) {
           onBlur={() => setFocused(false)}
           onKeyDown={handleKeyDown}
           aria-label="Domain search"
-          className="flex-1 min-w-0 border-0 ring-0 focus:ring-0 focus:outline-none bg-transparent text-[15px] text-gray-900 px-3 h-11 caret-[#5aace8] placeholder:text-gray-400 placeholder:text-2xl placeholder:font-bold"
+          className="font-bold flex-1 min-w-0 border-0 ring-0 focus:ring-0 focus:outline-none bg-transparent text-2xl text-black-900 px-3 h-11 caret-[#5aace8] placeholder:text-gray-400 placeholder:text-2xl placeholder:font-bold"
         />
 
         {/* Search button */}
         <button
           onClick={handleSearch}
           aria-label="Search domain"
-          className="flex items-center gap-1.5 px-5 h-11 bg-[#1a73e8] hover:bg-[#1558c0] active:bg-[#1045a1] active:scale-[0.97] text-white text-sm font-medium rounded-lg flex-shrink-0 whitespace-nowrap transition-all duration-150 cursor-pointer border-none"
+          className="flex font-bold items-center gap-1.5 px-5 py-8 h-11 bg-[#09757A] active:scale-[0.97] text-white text-sm font-medium rounded-lg flex-shrink-0 whitespace-nowrap transition-all duration-150 cursor-pointer border-none"
         >
           <svg
             width="16"
@@ -86,16 +86,18 @@ export default function DomainSearchBar({ onSearch }) {
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
-          Search domain
+          Search Domains
         </button>
       </div>
 
       <div
-        className={`flex justify-between items-center gap-4 bg-white rounded-xl w-auto h-20 p-3 transition-shadow duration-200`}
+        className={`group flex justify-between items-center gap-4 hover:bg-white hover:cursor-pointer rounded-xl w-auto h-20 p-3 transition-all duration-300`}
       >
-        <p>.fyi</p>
+        <p className="text-xl text-gray-500 font-semibold">.fyi</p>
         <div>
-          <p>$9.99/1st yr</p>
+          <p className="font-semibold group-hover:text-blue-500 transition-colors duration-300">
+            $9.99/1st yr
+          </p>
           <p className="text-sm">Share information with .fyi</p>
         </div>
       </div>
