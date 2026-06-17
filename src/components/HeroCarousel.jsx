@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { Play, Pause } from "lucide-react";
 import Domain from "../assets/Domain.mp4";
 import website from "../assets/website.png";
-console.log(Domain);
 
 const slides = [
   {
@@ -11,6 +11,8 @@ const slides = [
     media: Domain,
     subtitle: "Domains",
     title: "Find the perfect domain for your business",
+    btnText: "Claim your .com",
+    showLearnMore: false,
   },
 
   {
@@ -20,6 +22,8 @@ const slides = [
     media: website,
     subtitle: "Website Builder",
     title: "Your free website is just the beginning",
+    btnText: "Start for Free",
+    showLearnMore: true,
   },
 ];
 
@@ -32,6 +36,7 @@ export default function HeroCarousel() {
 
   const animationRef = useRef();
   const startTimeRef = useRef();
+  const videoRef = useRef(null);
 
   const nextSlide = () => {
     setActiveSlide((prev) => (prev + 1) % slides.length);
@@ -68,8 +73,18 @@ export default function HeroCarousel() {
     return () => cancelAnimationFrame(animationRef.current);
   }, [activeSlide, paused]);
 
+  useEffect(() => {
+    if (!videoRef.current) return;
+
+    if (paused) {
+      videoRef.current.pause();
+    } else {
+      videoRef.current.play();
+    }
+  }, [paused]);
+
   return (
-    <section className="relative h-[500px] overflow-hidden rounded-2xl mx-3 my-5">
+    <section className="relative mx-3 my-5 h-[500px] overflow-hidden rounded-2xl">
       {/* MEDIA */}
       <div className="absolute inset-0">
         {slides.map((slide, index) => (
@@ -81,13 +96,14 @@ export default function HeroCarousel() {
           >
             {slide.type === "video" ? (
               <video
+                ref={activeSlide === index ? videoRef : null}
                 src={slide.media}
                 autoPlay
                 muted
                 loop
                 playsInline
                 className="h-full w-full object-cover"
-              ></video>
+              />
             ) : (
               <img
                 src={slide.media}
@@ -98,10 +114,16 @@ export default function HeroCarousel() {
           </div>
         ))}
       </div>
+
       {/* OVERLAY */}
       <div className="absolute inset-0 bg-black/40" />
+
       {/* CONTENT */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center text-white">
+      <div
+        key={activeSlide}
+        className=" relative z-10 flex h-full flex-col items-center justify-center
+                    px-6 text-center text-white animate-[fadeIn_.5s_ease]"
+      >
         <p className="mb-4 text-lg font-medium">
           {slides[activeSlide].subtitle}
         </p>
@@ -110,12 +132,14 @@ export default function HeroCarousel() {
           {slides[activeSlide].title}
         </h1>
 
-        <div className="mt-10 flex gap-4">
-          <button className="rounded-xl bg-white px-8 py-4 font-semibold text-black">
-            Start for Free
+        <div className="mt-6 flex items-center gap-4">
+          <button className="rounded-md bg-white px-16 py-4 font-semibold text-black">
+            {slides[activeSlide].btnText}
           </button>
 
-          <button className="font-semibold">Learn More →</button>
+          {slides[activeSlide].showLearnMore && (
+            <button className="font-semibold">Learn More →</button>
+          )}
         </div>
 
         <p className="mt-5 text-sm">No credit card required.</p>
@@ -125,32 +149,24 @@ export default function HeroCarousel() {
       <div className="absolute bottom-8 left-8 z-20 flex items-center gap-3">
         {slides.map((slide, index) => {
           const isActive = activeSlide === index;
+
           const isCompleted =
-            activeSlide > index ||
-            (activeSlide === 0 && index === slides.length - 1);
+            (activeSlide === 1 && index === 0) ||
+            (activeSlide === 0 && index === 1 && progress > 95);
 
           return (
             <button
               key={slide.id}
               onClick={() => selectSlide(index)}
-              className={`
-    relative overflow-hidden rounded-full 
-    backdrop-blur-md
-    px-6 py-2 text-sm font-semibold
-    transition-all duration-500
-
-    ${
-      isActive
-        ? "bg-white text-black"
-        : isCompleted
-          ? "bg-white/10 text-white"
-          : "bg-white/20 text-white"
-    }
-  `}
+              className="
+                relative overflow-hidden rounded-full
+                bg-white px-5 py-1
+                text-sm font-semibold
+              "
             >
-              {/* Animated Fill */}
+              {/* Loader */}
               <div
-                className="absolute inset-0 bg-white/80"
+                className="absolute inset-0 bg-neutral-300"
                 style={{
                   width: isActive
                     ? `${progress}%`
@@ -160,13 +176,7 @@ export default function HeroCarousel() {
                 }}
               />
 
-              <span
-                className={`relative z-10 transition-colors duration-300 ${
-                  isActive ? "text-black" : "text-white"
-                }`}
-              >
-                {slide.label}
-              </span>
+              <span className="relative z-10 text-black">{slide.label}</span>
             </button>
           );
         })}
@@ -175,12 +185,17 @@ export default function HeroCarousel() {
         <button
           onClick={() => setPaused((prev) => !prev)}
           className="
-      flex h-10 w-10 items-center justify-center
-      rounded-full bg-white/80 backdrop-blur-md
-      transition hover:bg-white
-    "
+            flex h-8 w-8 items-center justify-center
+            rounded-full bg-white/80
+            backdrop-blur-md
+            transition hover:bg-white
+          "
         >
-          {paused ? "▶" : "❚❚"}
+          {paused ? (
+            <Play size={13} strokeWidth={1.5} />
+          ) : (
+            <Pause size={13} strokeWidth={1.5} />
+          )}
         </button>
       </div>
     </section>
