@@ -21,9 +21,9 @@ export default function DomainSearchBar({ onSearch }) {
   };
 
   return (
-    <div className="my-5 rounded-xl max-w-[1250px] w-auto mx-auto h-25 bg-gray-100 flex justify-evenly items-center">
+    <div className="my-5 rounded-xl gap-1 max-w-[1250px] w-auto mx-auto h-25 bg-gray-100 flex justify-evenly items-center px-1">
       <div
-        className={`flex items-center shadow-xl bg-white rounded-xl w-full max-w-[1000px] h-20 pr-1.5 pl-2 py-1.5 transition-shadow duration-200 ${
+        className={`flex items-center shadow-xl bg-white rounded-xl w-full max-w-[980px] h-20 pr-1.5 pl-2 py-1.5 transition-shadow duration-200 ${
           focused ? "ring-2 ring-[#5aace8]" : "ring-0"
         }`}
       >
@@ -63,7 +63,7 @@ export default function DomainSearchBar({ onSearch }) {
           onBlur={() => setFocused(false)}
           onKeyDown={handleKeyDown}
           aria-label="Domain search"
-          className="font-bold flex-1 min-w-0 border-0 ring-0 focus:ring-0 focus:outline-none bg-transparent text-2xl text-black-900 px-3 h-11 caret-[#5aace8] placeholder:text-gray-400 placeholder:text-2xl placeholder:font-bold"
+          className="font-bold flex-1 min-w-0 border-0 ring-0 focus:ring-0 focus:outline-none bg-transparent text-2xl text-black-900 px-3 h-11 caret-[#5aace8] placeholder:text-black-400 placeholder:text-[25px] placeholder:font-bold"
         />
 
         {/* Search button */}
@@ -91,7 +91,7 @@ export default function DomainSearchBar({ onSearch }) {
       </div>
 
       <div
-        className={`group flex justify-between items-center gap-4 hover:bg-white hover:cursor-pointer rounded-xl w-auto h-20 p-3 transition-all duration-300`}
+        className={`group flex justify-evenly items-center gap-2 hover:bg-white hover:cursor-pointer rounded-xl w-[250px] h-20 p-3 transition-all duration-300`}
       >
         <p className="text-xl text-gray-500 font-semibold">.fyi</p>
         <div>

@@ -8,7 +8,6 @@ export default function TrustRating() {
         display: "flex",
         gap: "2px",
         bgcolor: "#f2f2f2",
-        p: 2,
         width: "fit-content",
       }}
     >
