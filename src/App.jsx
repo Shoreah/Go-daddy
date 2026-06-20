@@ -6,6 +6,7 @@ import Rating from "./components/RatingComp.jsx";
 import ThreePages from "./components/ThreePages.jsx";
 import ShowcaseHeader from "./components/ShowcaseHeader.jsx";
 import VideoShowcase from "./components/VideoShowcase.jsx";
+import TemplateGallery from "./components/TemplateGallery.jsx";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <ThreePages />
       <ShowcaseHeader />
       <VideoShowcase />
+      <TemplateGallery />
     </>
   );
 }
