@@ -14,15 +14,15 @@ export default function ThreePages() {
         What's first up for your business?
       </h1>
 
-      <div className="flex justify-center gap-3 my-10 items-center">
+      <div className="flex justify-center gap-3 mt-10 items-center">
         {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`border rounded-3xl px-8 py-3 transition-colors ${
+            className={`border rounded-3xl px-8 py-3 transition-all hover:scale-105 hover:cursor-pointer ${
               activeTab === tab
-                ? "bg-black text-white border-black"
-                : "border-gray-300 text-gray-700 hover:border-gray-500"
+                ? "bg-black text-white border-black hover:border-gray-700"
+                : "border-gray-300 text-black hover:border-black"
             }`}
           >
             {tab}
