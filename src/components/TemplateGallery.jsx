@@ -73,7 +73,7 @@ export default function TemplateGallery() {
 
   return (
     <div
-      className="w-full"
+      className="w-full mb-20"
       style={{
         fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif",
         backgroundColor: "#eef0f3",
