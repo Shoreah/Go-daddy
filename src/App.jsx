@@ -8,6 +8,7 @@ import ShowcaseHeader from "./components/ShowcaseHeader.jsx";
 import VideoShowcase from "./components/VideoShowcase.jsx";
 import TemplateGallery from "./components/TemplateGallery.jsx";
 import Overlap from "./components/Overlap.jsx";
+import FiveBoxes from "./components/FiveBoxes.jsx";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <VideoShowcase />
       <TemplateGallery />
       <Overlap />
+      <FiveBoxes />
     </>
   );
 }

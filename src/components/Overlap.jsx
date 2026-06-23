@@ -1,5 +1,10 @@
 import Img1 from "../assets/Overlap1.jpg";
 import Img2 from "../assets/Overlap2.jpg";
+import LanguageIcon from "@mui/icons-material/LanguageOutlined";
+import DesktopIcon from "@mui/icons-material/ScreenSearchDesktopOutlined";
+import Email from "@mui/icons-material/EmailOutlined";
+import ForumIcon from "@mui/icons-material/ForumOutlined";
+import Phone from "@mui/icons-material/StayCurrentPortraitOutlined";
 
 export default function Overlap() {
   return (
@@ -21,13 +26,42 @@ export default function Overlap() {
             vision into reality.”
           </p>
 
-          <div className="flex justify-evenly gap-10">
-            <div className="flex flex-col gap-4 font-semibold text-lg justify-center content-center">
-              <p>Domain Name</p>
-              <p>Online Store</p>
-              <p>Business Email</p>
-              <p>Conversations</p>
-              <p>GoDaddy App</p>
+          <div className="flex justify-between gap-10">
+            <div className="flex flex-col gap-4 font-semibold text-md justify-center content-center">
+              <div className="flex gap-2 items-center">
+                <div className="bg-gray-200 rounded-lg w-8 flex justify-center p-2">
+                  <LanguageIcon fontSize="small" />
+                </div>
+                <p>Domain Name</p>
+              </div>
+
+              <div className="flex gap-2 items-center">
+                <div className="bg-gray-200 rounded-lg w-8 flex justify-center p-2">
+                  <DesktopIcon fontSize="small" />
+                </div>
+                <p>Online Store</p>
+              </div>
+
+              <div className="flex gap-2 items-center">
+                <div className="bg-gray-200 rounded-lg w-8 flex justify-center p-2">
+                  <Email fontSize="small" />
+                </div>
+                <p>Business Email</p>
+              </div>
+
+              <div className="flex gap-2 items-center">
+                <div className="bg-gray-200 rounded-lg w-8 flex justify-center p-2">
+                  <ForumIcon fontSize="small" />
+                </div>
+                <p>Conversations</p>
+              </div>
+
+              <div className="flex gap-2 items-center">
+                <div className="bg-gray-200 rounded-lg w-8 flex justify-center p-2">
+                  <Phone fontSize="small" />
+                </div>
+                <p>GoDaddy App</p>
+              </div>
             </div>
             <div>
               <img
