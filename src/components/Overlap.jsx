@@ -12,14 +12,14 @@ export default function Overlap() {
       <h1 className="text-5xl font-bold mx-5 my-5">
         Airo every day, all the way
       </h1>
-      <div className="w-full max-w-7xl mx-5 position relative">
+      <div className="w-full max-w-[1320px] mx-auto relative h-[560px]">
         <img
           src={Img1}
           alt=""
           className="object-cover h-[550px] w-full rounded-3xl"
         />
 
-        <div className="absolute bg-white h-[500px] w-[750px] top-6 right-5 rounded-lg p-10">
+        <div className="absolute bg-white w-[55%] top-6 right-5 rounded-lg p-10">
           <p className="text-2xl font-semibold mb-15">
             “It's my job to make you believe I can do anything. But when it came
             to building my website, GoDaddy Airo™ stepped in and turned my
@@ -67,7 +67,7 @@ export default function Overlap() {
               <img
                 src={Img2}
                 alt=""
-                className="object-cover w-96 shrink-0 rounded-lg"
+                className="object-cover w-100 shrink-0 rounded-lg"
               />
             </div>
           </div>
