@@ -9,6 +9,8 @@ import VideoShowcase from "./components/VideoShowcase.jsx";
 import TemplateGallery from "./components/TemplateGallery.jsx";
 import Overlap from "./components/Overlap.jsx";
 import FiveBoxes from "./components/FiveBoxes.jsx";
+import VidGroupHeader from "./components/VidGroupHeader.jsx";
+import VideoCarousel from "./components/VideoCarousel.jsx";
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
       <TemplateGallery />
       <Overlap />
       <FiveBoxes />
+      <VidGroupHeader />
+      <VideoCarousel />
     </>
   );
 }
