@@ -1,557 +1,450 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useTransform,
+  animate,
+} from "framer-motion";
 import Demon from "../assets/Demon.mp4";
 import DemonImg from "../assets/Fourvid1.png";
-
 import Solo from "../assets/SoloLevel.mp4";
 import SoloImg from "../assets/Fourvid2.jpg";
-/**
- * VideoCarousel
- *
- * Replace the VIDEOS array with your own files.
- * Each entry needs:
- *   src    – path / URL to the video file
- *   poster – path / URL to the thumbnail image
- *   title  – accessible label (not shown in carousel)
- */
+import ArcaneImg from "../assets/arcane.jpeg";
+import HellImg from "../assets/hell.jpeg";
+
+// ─── Data ────────────────────────────────────────────────────────────────────
 const VIDEOS = [
   {
     id: 0,
     title: "Video one",
+    description:
+      "Choose the right domain so the world can find you, and grow with an AI-powered website and built-in marketing tools.",
     src: Demon,
-    poster: DemonImg,
+    poster: ArcaneImg,
   },
   {
     id: 1,
     title: "Video two",
+    description:
+      "Build a stunning website in minutes with our AI-powered builder and start selling online today.",
     src: Solo,
     poster: SoloImg,
   },
   {
     id: 2,
     title: "Video three",
-    src: "/videos/video4.mp4",
-    poster: "/posters/poster3.jpg",
+    description:
+      "Reach more customers with built-in SEO tools, email marketing, and social media integrations.",
+    src: Demon,
+    poster: DemonImg,
   },
   {
     id: 3,
     title: "Video four",
+    description:
+      "Join millions of entrepreneurs who trust us to power their online presence and grow their business.",
     src: "/videos/video4.mp4",
-    poster: "/posters/poster4.jpg",
+    poster: HellImg,
   },
 ];
 
-const SWIPE_THRESHOLD = 50; // px drag needed to trigger a slide change
+// ─── Layout constants ─────────────────────────────────────────────────────────
+const CARD_H = 420;
+const W_ACTIVE = 750;
+const W_SIDE = 280;
+const GAP = 32;
+const DIM_OPACITY = 0.45;
+const DRAG_THRESHOLD = 80; // px — how far to drag before committing a slide
+const SLOT_WIDTH = W_SIDE + GAP; // how far the track moves per slide
+const SPRING = { type: "spring", stiffness: 300, damping: 40, mass: 1 };
+const SNAP_SPRING = { type: "spring", stiffness: 400, damping: 45, mass: 0.8 };
 
-/* ─── tiny SVG icons ─────────────────────────────────────────────────── */
-
-const PlayIcon = ({ className = "" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+// ─── Icons ───────────────────────────────────────────────────────────────────
+const PlayIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" width={24} height={24}>
     <path d="M8 5.14v14l11-7-11-7z" />
   </svg>
 );
-
-const PauseIcon = ({ className = "" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-  </svg>
-);
-
-const VolumeOnIcon = ({ className = "" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
-  </svg>
-);
-
-const VolumeOffIcon = ({ className = "" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0 0 17.73 18L19 19.27 20.27 18 5.27 3 4.27 3zM12 4 9.91 6.09 12 8.18V4z" />
-  </svg>
-);
-
-const FullscreenIcon = ({ className = "" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
-  </svg>
-);
-
-const XIcon = ({ className = "" }) => (
+const ChevronLeft = () => (
   <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.2"
-    strokeLinecap="round"
-  >
-    <line x1="18" y1="6" x2="6" y2="18" />
-    <line x1="6" y1="6" x2="18" y2="18" />
-  </svg>
-);
-
-const ChevronLeft = ({ className = "" }) => (
-  <svg
-    className={className}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
     strokeWidth="1.8"
     strokeLinecap="round"
     strokeLinejoin="round"
+    width={16}
+    height={16}
   >
     <polyline points="15 18 9 12 15 6" />
   </svg>
 );
-
-const ChevronRight = ({ className = "" }) => (
+const ChevronRight = () => (
   <svg
-    className={className}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
     strokeWidth="1.8"
     strokeLinecap="round"
     strokeLinejoin="round"
+    width={16}
+    height={16}
   >
     <polyline points="9 18 15 12 9 6" />
   </svg>
 );
 
-/* ─── helpers ─────────────────────────────────────────────────────────── */
-
-function fmt(s) {
-  if (!s || isNaN(s)) return "0:00";
-  return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
-}
-
 function mod(n, m) {
   return ((n % m) + m) % m;
 }
 
-/* ─── Modal player ────────────────────────────────────────────────────── */
+// ─── Card ─────────────────────────────────────────────────────────────────────
+// progress: motion value -1 to +1 representing how far we're dragging
+// slot: -1 (prev), 0 (active), +1 (next)
+// We derive width and dim opacity from progress so they animate live
+function Card({ video, slot, dragProgress, onClick }) {
+  // When slot=0 (active): width goes from W_ACTIVE toward W_SIDE as we drag
+  // When slot=-1 (prev):  width goes from W_SIDE toward W_ACTIVE as we drag right
+  // When slot=+1 (next):  width goes from W_SIDE toward W_ACTIVE as we drag left
+  const width = useTransform(dragProgress, (p) => {
+    if (slot === 0) return W_ACTIVE - (W_ACTIVE - W_SIDE) * Math.abs(p);
+    if (slot === -1) return W_SIDE + (W_ACTIVE - W_SIDE) * Math.max(0, p);
+    if (slot === 1) return W_SIDE + (W_ACTIVE - W_SIDE) * Math.max(0, -p);
+    return W_SIDE;
+  });
 
-function VideoModal({ video, onClose, onBackToHome }) {
-  const videoRef = useRef(null);
-  const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(false);
-  const [current, setCurrent] = useState(0);
-  const [dur, setDur] = useState(0);
-  const [seeking, setSeeking] = useState(false);
+  const dimOpacity = useTransform(dragProgress, (p) => {
+    if (slot === 0) return DIM_OPACITY * Math.abs(p);
+    if (slot === -1) return DIM_OPACITY - DIM_OPACITY * Math.max(0, p);
+    if (slot === 1) return DIM_OPACITY - DIM_OPACITY * Math.max(0, -p);
+    return DIM_OPACITY;
+  });
 
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.load();
-      setCurrent(0);
-      setDur(0);
-      setPlaying(false);
-    }
-  }, [video.id]);
-
-  const togglePlay = () => {
-    if (!videoRef.current) return;
-    if (playing) videoRef.current.pause();
-    else videoRef.current.play();
-    setPlaying((p) => !p);
-  };
-
-  const toggleMute = () => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = !muted;
-    setMuted((m) => !m);
-  };
-
-  const pct = dur > 0 ? (current / dur) * 100 : 0;
+  const playOpacity = useTransform(dragProgress, (p) => {
+    if (slot === 0) return 1 - Math.abs(p);
+    return 0;
+  });
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-5"
-      style={{ background: "rgba(0,0,0,0.82)" }}
-      onClick={(e) => {
-        if (e.currentTarget === e.target) onClose();
+    <motion.div
+      onClick={onClick}
+      style={{
+        width,
+        height: CARD_H,
+        borderRadius: 16,
+        overflow: "hidden",
+        flexShrink: 0,
+        position: "relative",
+        cursor: slot === 0 ? "pointer" : "grab",
       }}
     >
-      <div className="relative w-full max-w-3xl mx-4 rounded-xl overflow-hidden bg-black">
-        <video
-          ref={videoRef}
-          className="w-full aspect-video object-cover"
-          src={video.src}
-          poster={video.poster}
-          onTimeUpdate={() => {
-            if (!seeking && videoRef.current)
-              setCurrent(videoRef.current.currentTime);
-          }}
-          onLoadedMetadata={() => {
-            if (videoRef.current) setDur(videoRef.current.duration);
-          }}
-          onEnded={() => setPlaying(false)}
-          playsInline
-        />
-
-        <button
-          onClick={onClose}
-          aria-label="Close"
-          className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-          style={{ background: "rgba(255,255,255,0.18)" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.background = "rgba(255,255,255,0.30)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.background = "rgba(255,255,255,0.18)")
-          }
-        >
-          <XIcon className="w-4 h-4 text-white" />
-        </button>
-
-        <div className="bg-black px-3 pb-3 pt-1">
-          <div
-            className="relative h-1 rounded-full overflow-hidden mb-2 mt-1"
-            style={{ background: "rgba(255,255,255,0.2)" }}
-          >
-            <div
-              className="absolute inset-y-0 left-0 bg-white rounded-full"
-              style={{ width: `${pct}%` }}
-            />
-            <input
-              type="range"
-              min={0}
-              max={dur || 0}
-              step={0.1}
-              value={current}
-              onChange={(e) => {
-                const v = parseFloat(e.target.value);
-                if (videoRef.current) videoRef.current.currentTime = v;
-                setCurrent(v);
-              }}
-              onMouseDown={() => setSeeking(true)}
-              onMouseUp={() => setSeeking(false)}
-              className="absolute inset-0 w-full opacity-0 cursor-pointer h-full"
-            />
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={togglePlay}
-              aria-label={playing ? "Pause" : "Play"}
-              className="text-white hover:opacity-75 transition-opacity"
-            >
-              {playing ? (
-                <PauseIcon className="w-5 h-5" />
-              ) : (
-                <PlayIcon className="w-5 h-5" />
-              )}
-            </button>
-            <span
-              className="text-xs tabular-nums mr-auto"
-              style={{ color: "rgba(255,255,255,0.55)" }}
-            >
-              {fmt(current)} / {fmt(dur)}
-            </span>
-            <button
-              onClick={toggleMute}
-              aria-label={muted ? "Unmute" : "Mute"}
-              className="text-white hover:opacity-75 transition-opacity"
-            >
-              {muted ? (
-                <VolumeOffIcon className="w-5 h-5" />
-              ) : (
-                <VolumeOnIcon className="w-5 h-5" />
-              )}
-            </button>
-            <button
-              onClick={() => videoRef.current?.requestFullscreen?.()}
-              aria-label="Fullscreen"
-              className="text-white hover:opacity-75 transition-opacity"
-            >
-              <FullscreenIcon className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <button
-        onClick={onBackToHome}
-        className="text-sm px-6 py-2.5 rounded-lg border transition-colors"
+      <img
+        src={video.poster}
+        alt={video.title}
+        draggable={false}
         style={{
-          borderColor: "rgba(255,255,255,0.3)",
-          color: "#fff",
-          background: "transparent",
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          display: "block",
         }}
-        onMouseEnter={(e) =>
-          (e.currentTarget.style.background = "rgba(255,255,255,0.08)")
-        }
-        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+      />
+
+      {/* Dim overlay — live from dragProgress */}
+      <motion.div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "white",
+          opacity: dimOpacity,
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Play button — fades out as you drag */}
+      <motion.div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          pointerEvents: "none",
+          opacity: playOpacity,
+        }}
       >
-        Back to home page
-      </button>
-    </div>
+        <div
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.92)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+          }}
+        >
+          <PlayIcon />
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
-/* ─── Main carousel ───────────────────────────────────────────────────── */
-
-export default function VideoCarousel({
-  description = "Choose the right domain so the world can find you, and grow with an AI-powered website and built-in marketing tools.",
-}) {
-  const [active, setActive] = useState(0);
-  const [modalIdx, setModalIdx] = useState(null);
-
-  // drag / swipe state
-  const dragStartX = useRef(null);
-  const dragCurrent = useRef(0);
-  const isDragging = useRef(false);
-  const hasDragged = useRef(false); // true once drag exceeds a few px
+// ─── Carousel ─────────────────────────────────────────────────────────────────
+export default function VideoCarousel() {
+  const [activeIdx, setActiveIdx] = useState(0);
   const stripRef = useRef(null);
+  const isSliding = useRef(false);
+  const wheelAccum = useRef(0);
+  const wheelTimer = useRef(null);
 
-  const total = VIDEOS.length;
+  // dragProgress: -1 = fully dragged to reveal next, +1 = fully dragged to reveal prev
+  // 0 = settled at center. This is a MotionValue so it drives card widths/dims
+  // without causing React re-renders on every frame.
+  const dragProgress = useMotionValue(0);
 
-  const navigate = useCallback(
-    (dir) => {
-      setActive((i) => mod(i + (dir === "right" ? 1 : -1), total));
+  // trackX: the actual pixel translation of the card row as you drag
+  const trackX = useMotionValue(0);
+
+  const goNext = useCallback(() => {
+    if (isSliding.current) return;
+    isSliding.current = true;
+    // Animate progress to -1 (next card fully expands), then commit
+    animate(dragProgress, -1, {
+      ...SNAP_SPRING,
+      onComplete: () => {
+        setActiveIdx((i) => mod(i + 1, VIDEOS.length));
+        dragProgress.set(0);
+        trackX.set(0);
+        isSliding.current = false;
+      },
+    });
+  }, [dragProgress, trackX]);
+
+  const goPrev = useCallback(() => {
+    if (isSliding.current) return;
+    isSliding.current = true;
+    animate(dragProgress, 1, {
+      ...SNAP_SPRING,
+      onComplete: () => {
+        setActiveIdx((i) => mod(i - 1, VIDEOS.length));
+        dragProgress.set(0);
+        trackX.set(0);
+        isSliding.current = false;
+      },
+    });
+  }, [dragProgress, trackX]);
+
+  const prevIdx = mod(activeIdx - 1, VIDEOS.length);
+  const nextIdx = mod(activeIdx + 1, VIDEOS.length);
+
+  // ── Pointer drag ──────────────────────────────────────────────────────────
+  const onPointerDown = useCallback(
+    (e) => {
+      if (isSliding.current) return;
+      e.currentTarget.setPointerCapture(e.pointerId);
+      const startX = e.clientX;
+
+      const onMove = (e) => {
+        const delta = e.clientX - startX;
+        // Clamp to ±SLOT_WIDTH so it doesn't drag too far
+        const clamped = Math.max(-SLOT_WIDTH, Math.min(SLOT_WIDTH, delta));
+        trackX.set(clamped);
+        // Convert pixel delta to -1..+1 progress
+        dragProgress.set(-(clamped / SLOT_WIDTH));
+      };
+
+      const onUp = (e) => {
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+
+        const delta = e.clientX - startX;
+        if (delta < -DRAG_THRESHOLD) {
+          goNext();
+        } else if (delta > DRAG_THRESHOLD) {
+          goPrev();
+        } else {
+          // Snap back to center
+          animate(trackX, 0, SNAP_SPRING);
+          animate(dragProgress, 0, SNAP_SPRING);
+        }
+      };
+
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
     },
-    [total],
+    [dragProgress, trackX, goNext, goPrev],
   );
 
-  /* ── pointer / touch handlers ── */
-
-  const onDragStart = useCallback((clientX) => {
-    dragStartX.current = clientX;
-    dragCurrent.current = clientX;
-    isDragging.current = true;
-    hasDragged.current = false;
-  }, []);
-
-  const onDragMove = useCallback((clientX) => {
-    if (!isDragging.current) return;
-    dragCurrent.current = clientX;
-    const delta = clientX - dragStartX.current;
-    if (Math.abs(delta) > 5) hasDragged.current = true;
-  }, []);
-
-  const onDragEnd = useCallback(() => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
-
-    const delta = dragCurrent.current - dragStartX.current;
-    if (Math.abs(delta) >= SWIPE_THRESHOLD) {
-      navigate(delta < 0 ? "right" : "left");
-    }
-  }, [navigate]);
-
-  /* mouse events */
-  const onMouseDown = (e) => {
-    e.preventDefault();
-    onDragStart(e.clientX);
-  };
-  const onMouseMove = (e) => {
-    if (isDragging.current) onDragMove(e.clientX);
-  };
-  const onMouseUp = (e) => {
-    onDragEnd();
-  };
-
-  /* touch events */
-  const onTouchStart = (e) => {
-    onDragStart(e.touches[0].clientX);
-  };
-  const onTouchMove = (e) => {
-    onDragMove(e.touches[0].clientX);
-  };
-  const onTouchEnd = () => {
-    onDragEnd();
-  };
-
-  /* attach global mousemove/mouseup so drag works even outside the strip */
+  // ── Trackpad wheel ────────────────────────────────────────────────────────
   useEffect(() => {
-    const move = (e) => onDragMove(e.clientX);
-    const up = () => onDragEnd();
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", up);
-    return () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mouseup", up);
+    const el = stripRef.current;
+    if (!el) return;
+
+    const onWheel = (e) => {
+      if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      if (isSliding.current) return;
+
+      wheelAccum.current += e.deltaX;
+
+      // Live preview while swiping
+      const clamped = Math.max(
+        -SLOT_WIDTH,
+        Math.min(SLOT_WIDTH, -wheelAccum.current),
+      );
+      trackX.set(clamped);
+      dragProgress.set(-(clamped / SLOT_WIDTH));
+
+      clearTimeout(wheelTimer.current);
+      wheelTimer.current = setTimeout(() => {
+        if (wheelAccum.current > DRAG_THRESHOLD) {
+          goNext();
+        } else if (wheelAccum.current < -DRAG_THRESHOLD) {
+          goPrev();
+        } else {
+          animate(trackX, 0, SNAP_SPRING);
+          animate(dragProgress, 0, SNAP_SPRING);
+        }
+        wheelAccum.current = 0;
+      }, 120);
     };
-  }, [onDragMove, onDragEnd]);
 
-  const openModal = (idx) => {
-    // only open if the user didn't drag
-    if (!hasDragged.current) setModalIdx(idx);
-  };
-  const closeModal = () => setModalIdx(null);
-  const backToHome = () => {
-    closeModal();
-    setActive(0);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  /* five slots: far-left edge | left | ACTIVE | right | far-right edge */
-  const indices = [
-    mod(active - 2, total),
-    mod(active - 1, total),
-    active,
-    mod(active + 1, total),
-    mod(active + 2, total),
-  ];
-
-  const slotCfg = [
-    { flex: "0 0 8%", dimOpacity: 0.55, scale: 0.9 },
-    { flex: "0 0 20%", dimOpacity: 0.32, scale: 0.95 },
-    { flex: "0 0 58%", dimOpacity: 0, scale: 1 },
-    { flex: "0 0 20%", dimOpacity: 0.32, scale: 0.95 },
-    { flex: "0 0 8%", dimOpacity: 0.55, scale: 0.9 },
-  ];
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [dragProgress, trackX, goNext, goPrev]);
 
   return (
-    <section className="w-full bg-white w-full bg-white py-12">
-      {/* ── carousel strip ── */}
-      <div className="max-w-[1500px] mx-auto px-8">
-        <div
-          ref={stripRef}
-          className="w-full overflow-hidden"
-          style={{ cursor: isDragging.current ? "grabbing" : "grab" }}
-          onMouseDown={onMouseDown}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
+    <section
+      style={{
+        width: "100%",
+        background: "white",
+        paddingTop: 40,
+        paddingBottom: 40,
+      }}
+    >
+      {/* Strip */}
+      <div
+        ref={stripRef}
+        style={{ width: "100%", overflow: "hidden", cursor: "grab" }}
+        onPointerDown={onPointerDown}
+      >
+        {/* Track — translates live as you drag */}
+        <motion.div
+          style={{
+            x: trackX,
+            display: "flex",
+            alignItems: "center",
+            width: "max-content",
+            margin: "0 auto",
+            gap: GAP,
+            userSelect: "none",
+          }}
         >
-          <div
-            className="flex items-stretch"
+          <Card
+            video={VIDEOS[prevIdx]}
+            slot={-1}
+            dragProgress={dragProgress}
+            onClick={() => {
+              if (!isSliding.current) goPrev();
+            }}
+          />
+          <Card
+            video={VIDEOS[activeIdx]}
+            slot={0}
+            dragProgress={dragProgress}
+            onClick={() => {
+              /* modal step 7 */
+            }}
+          />
+          <Card
+            video={VIDEOS[nextIdx]}
+            slot={1}
+            dragProgress={dragProgress}
+            onClick={() => {
+              if (!isSliding.current) goNext();
+            }}
+          />
+        </motion.div>
+      </div>
+
+      {/* Caption */}
+      <div
+        style={{
+          position: "relative",
+          padding: "24px 32px 0",
+          maxWidth: 1100,
+          margin: "0 auto",
+          textAlign: "center",
+        }}
+      >
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={activeIdx}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.25 }}
             style={{
-              height: "430px",
-              userSelect: "none",
-              gap: "24px",
+              color: "#4b5563",
+              fontSize: 14,
+              lineHeight: 1.6,
+              margin: 0,
             }}
           >
-            {indices.map((vi, slot) => {
-              const video = VIDEOS[vi];
-              const isActive = slot === 2;
-              const cfg = slotCfg[slot];
+            {VIDEOS[activeIdx].description}
+          </motion.p>
+        </AnimatePresence>
 
-              return (
-                <div
-                  key={`${vi}-${slot}`}
-                  style={{
-                    flex: cfg.flex,
-                    position: "relative",
-                    overflow: "hidden",
-                    borderRadius: "24px",
-                    transform: `scale(${cfg.scale})`,
-                    transition: "all 650ms cubic-bezier(.22,.61,.36,1)",
-                    boxShadow: isActive
-                      ? "0 20px 45px rgba(0,0,0,.18)"
-                      : "none",
-                  }}
-                  onClick={isActive ? () => openModal(vi) : undefined}
-                >
-                  <img
-                    src={video.poster}
-                    alt={video.title}
-                    draggable={false}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      objectPosition: "center",
-                      display: "block",
-                      pointerEvents: "none",
-                      transform: isActive ? "scale(1.03)" : "scale(1)",
-                      transition: "transform .7s ease",
-                    }}
-                  />
-
-                  {/* dim overlay */}
-                  {!isActive && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        background: `rgba(0,0,0,${cfg.dimOpacity})`,
-                        pointerEvents: "none",
-                      }}
-                    />
-                  )}
-
-                  {/* play button on active */}
-                  {isActive && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: 56,
-                          height: 56,
-                          borderRadius: "50%",
-                          background: "rgba(255,255,255,0.92)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <PlayIcon
-                          className="w-6 h-6 text-gray-800"
-                          style={{ marginLeft: 3 }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ── caption + nav row ── */}
-      <div
-        className="flex items-center justify-between px-6 py-5"
-        style={{ maxWidth: 1200, margin: "0 auto" }}
-      >
-        <p
-          className="text-gray-600 text-sm leading-relaxed"
-          style={{ maxWidth: 640 }}
+        {/* Nav buttons */}
+        <div
+          style={{
+            position: "absolute",
+            right: 32,
+            top: 24,
+            display: "flex",
+            gap: 8,
+          }}
         >
-          {description}
-        </p>
-
-        <div className="flex gap-2 flex-shrink-0 ml-8">
           <button
-            onClick={() => navigate("left")}
-            aria-label="Previous video"
-            className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors"
+            onClick={goPrev}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              border: "1px solid #d1d5db",
+              background: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: "#374151",
+            }}
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft />
           </button>
           <button
-            onClick={() => navigate("right")}
-            aria-label="Next video"
-            className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors"
+            onClick={goNext}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              border: "1px solid #d1d5db",
+              background: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: "#374151",
+            }}
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight />
           </button>
         </div>
       </div>
-
-      {/* ── modal ── */}
-      {modalIdx !== null && (
-        <VideoModal
-          video={VIDEOS[modalIdx]}
-          onClose={closeModal}
-          onBackToHome={backToHome}
-        />
-      )}
     </section>
   );
 }
