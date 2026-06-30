@@ -1,7 +1,8 @@
+import { lazy, Suspense } from "react";
 import { useState } from "react";
-import DomainsContent from "./DomainsContent";
-import RecommendedContent from "./RecommendedContent";
-import WordpressContent from "./WordpressContent";
+const DomainsContent = lazy(() => import("./DomainsContent"));
+const RecommendedContent = lazy(() => import("./RecommendedContent"));
+const WordpressContent = lazy(() => import("./WordpressContent"));
 
 const tabs = ["Domains", "Recommended", "WordPress and Security"];
 
